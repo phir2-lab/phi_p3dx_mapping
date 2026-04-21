@@ -1,13 +1,13 @@
 # phi_p3dx_mapping
 
-This repository contains ROS2 packages for mapping and exploration with the Pioneer P3-DX robot in different environments: Gazebo simulation (3D), MobileSim (2D), and physical robot.
+This repository contains ROS2 packages for mapping and exploration with the Pioneer P3-DX robot in different environments: MobileSim (2D) and physical robot.
 
 ## Overview
 
 The `phi_p3dx_mapping` package provides:
 - **Mapping nodes**: Occupancy grid creation and processing using odometry and sensor data.
 - **Exploration nodes**: Algorithms for autonomous navigation and environment discovery.
-- **Multi-platform compatibility**: Works in Gazebo, MobileSim, and physical robots.
+- **Multi-platform compatibility**: Works in MobileSim and physical robots.
 - **Educational examples**: Commented code in Python and C++ for robotics students.
 
 ### Package Structure
@@ -20,9 +20,8 @@ The `phi_p3dx_mapping` package provides:
 ## Prerequisites
 
 - **ROS2 Humble** (or compatible).
-- **Gazebo** (for 3D simulation).
-- **MobileSim** (for 2D simulation, if available).
-- Dependencies: `rclcpp`, `geometry_msgs`, `sensor_msgs`, `nav_msgs`, `tf2`, `visualization_msgs`, `ros_gz_sim`, `ros_gz_bridge`.
+- **MobileSim** (for 2D simulation).
+- Dependencies: `rclcpp`, `geometry_msgs`, `sensor_msgs`, `nav_msgs`, `tf2`, `visualization_msgs`.
 
 ## Installation
 
@@ -41,12 +40,13 @@ The `phi_p3dx_mapping` package provides:
 
 ## Usage
 
-### Gazebo Simulation (3D)
+### MobileSim Simulation (2D)
 
-1. Launch the simulation (starts an empty map or predefined obstacles):
+1. Launch the simulation:
    ```bash
-   ros2 launch phi_p3dx_mapping bringup_gazebo.launch.py world_name:=obstacles
+   ros2 launch phi_p3dx_mapping bringup_mobilesim.launch.py map_name:=obstacles
    ```
+
 2. Run the mapping node (Python):
    ```bash
    ros2 run phi_p3dx_mapping mapping_example_py
@@ -65,15 +65,6 @@ The `phi_p3dx_mapping` package provides:
    ros2 run phi_p3dx_mapping exploration_example_cpp
    ```
 
-### MobileSim Simulation (2D)
-
-1. Launch the simulation:
-   ```bash
-   ros2 launch phi_p3dx_mapping bringup_mobilesim.launch.py map_name:=obstacles
-   ```
-
-2. Run the mapping and exploration nodes as above.
-
 ### Real Robot
 
 1. Connect the Pioneer P3-DX robot.
@@ -85,14 +76,7 @@ The `phi_p3dx_mapping` package provides:
 
 3. Run the mapping and exploration nodes.
 
-## Alternative Branches
 
-- **`mobilesim-only`**: A version without Gazebo support, focused only on MobileSim (2D) and real robot mapping. This branch removes Gazebo dependencies and launch files for users who prefer a simpler setup without 3D simulation.
-
-  To use this branch:
-  ```bash
-  git checkout mobilesim-only
-  ```
 
 ## License
 
