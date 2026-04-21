@@ -49,7 +49,7 @@ install(TARGETS mapping_example_cpp exploration_example_cpp
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch scripts
+install(DIRECTORY launch scripts rviz
         DESTINATION share/${PROJECT_NAME})
 
 # ---------- Python Node script ----------
