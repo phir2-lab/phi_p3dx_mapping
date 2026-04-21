@@ -33,9 +33,11 @@ protected:
     if (front_dist < MIN_DIST) {
       // Obstáculo detectado, girar
       RCLCPP_INFO(this->get_logger(), "Obstáculo detectado a frente (%.2fm). Virando...", front_dist);
+      publish_target_pose(0.0, 0.0, 1.57, "base_link"); // Intenção: virar à esquerda
       publish_velocity(0.0, 0.4);
     } else {
       // Caminho livre, avançar
+      publish_target_pose(0.0, 0.0, 0.0, "base_link"); // Intenção: ir em frente
       publish_velocity(0.25, 0.0);
     }
   }

@@ -10,6 +10,9 @@ ExplorationNode::ExplorationNode(const std::string &node_name, double timer_peri
 {
   // Publisher param enviar comandos de velocidade ao robô (ou simulador)
   cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+  
+  // Publisher para as orientações desejadas/alvos
+  target_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("target_pose", 10);
 
   // Subscriber de dados de varredura a laser (SensorDataQoS é melhor para sensores)
   auto sensor_qos = rclcpp::QoS(rclcpp::SensorDataQoS());
@@ -96,6 +99,27 @@ void ExplorationNode::publish_velocity(double v, double w)
   twist.linear.x = v;
   twist.angular.z = w;
   cmd_vel_pub_->publish(twist);
+}
+
+/**
+ * @brief Publica uma pose destino (ou vetor de movimento) para visualização.
+ */
+void ExplorationNode::publish_target_pose(double x, double y, double theta, const std::string &frame_id)
+{
+  geometry_msgs::msg::PoseStamped pose_msg;
+  pose_msg.header.stamp = this->now();
+  pose_msg.header.frame_id = frame_id;
+  
+  pose_msg.pose.position.x = x;
+  pose_msg.pose.position.y = y;
+  pose_msg.pose.position.z = 0.0;
+  
+  pose_msg.pose.orientation.w = std::cos(theta / 2.0);
+  pose_msg.pose.orientation.x = 0.0;
+  pose_msg.pose.orientation.y = 0.0;
+  pose_msg.pose.orientation.z = std::sin(theta / 2.0);
+  
+  target_pose_pub_->publish(pose_msg);
 }
 
 /**
