@@ -16,32 +16,52 @@
 class ExplorationNode : public rclcpp::Node
 {
 public:
+  /**
+   * @brief Construtor da classe ExplorationNode.
+   * 
+   * @param node_name Nome com qual o nó será registrado no ROS 2.
+   * @param timer_period Período do loop principal em segundos.
+   */
   ExplorationNode(const std::string &node_name = "exploration_node", double timer_period = 0.1);
   virtual ~ExplorationNode() = default;
 
 protected:
   // Publishers & Subscribers
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
-  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub_;
-  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
-  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;   
+  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub_; 
+  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_; 
+  rclcpp::TimerBase::SharedPtr timer_;                                    
 
   // Dados do Laser
-  std::vector<float> laser_ranges_;
-  double laser_angle_min_;  
-  double laser_angle_increment_; 
+  std::vector<float> laser_ranges_;                                       
+  double laser_angle_min_;                                                
+  double laser_angle_increment_;                                          
   
   // Mapa
-  nav_msgs::msg::OccupancyGrid::SharedPtr map_msg_;
+  nav_msgs::msg::OccupancyGrid::SharedPtr map_msg_;                       
 
-  // Hooks para customização
+  /** @brief Chamado automaticamente ao receber novas leituras do LIDAR. */
   virtual void on_laser() {}
+  
+  /** @brief Chamado automaticamente quando um novo mapa é recebido. */
   virtual void on_map() {}
+  
+  /** @brief Loop contínuo executado através do timer (ex. para reações aleatórias ou predeterminadas). */
   virtual void control_loop() {}
 
-  // Utilidades
+  /**
+   * @brief Encontra a menor medida registrada nas proximidades frontais.
+   */
   double get_front_distance(double half_angle_deg = 15.0) const;
+  
+  /**
+   * @brief Publica comandos de velocidade linear e angular para o robô.
+   */
   void publish_velocity(double v, double w);
+  
+  /**
+   * @brief Envia comandos de parada definindo as velocidades do robô para zero.
+   */
   void stop();
 
 private:

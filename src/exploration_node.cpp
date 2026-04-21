@@ -8,10 +8,10 @@ ExplorationNode::ExplorationNode(const std::string &node_name, double timer_peri
     laser_angle_min_(0.0), laser_angle_increment_(0.0),
     map_msg_(nullptr)
 {
-  // Publisher: comandos de velocidade
+  // Publisher param enviar comandos de velocidade ao robô (ou simulador)
   cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 
-  // Subscriber: scan laser
+  // Subscriber de dados de varredura a laser (SensorDataQoS é melhor para sensores)
   auto sensor_qos = rclcpp::QoS(rclcpp::SensorDataQoS());
   laser_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
     "laser_scan", sensor_qos,
@@ -24,26 +24,46 @@ ExplorationNode::ExplorationNode(const std::string &node_name, double timer_peri
     "map", map_qos,
     std::bind(&ExplorationNode::map_callback, this, std::placeholders::_1));
 
-  // Timer para loop de controle
+  // Timer que controla o ciclo principal do nodo de forma constante
   timer_ = this->create_wall_timer(
     std::chrono::duration<double>(timer_period),
     std::bind(&ExplorationNode::control_loop, this));
 
-  RCLCPP_INFO(this->get_logger(), "[%s] iniciado", node_name.c_str());
+  RCLCPP_INFO(this->get_logger(), "[%s] inicializado.", node_name.c_str());
 }
 
+/**
+ * @brief Callback chamado toda vez que um pacote de dados de laser chega.
+ * 
+ * Armazena as leituras em laser_ranges_ e aciona on_laser().
+ * 
+ * @param msg Mensagem LaserScan contendo a varredura atual.
+ */
 void ExplorationNode::laser_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 {
   laser_ranges_ = msg->ranges;
-  on_laser();
+  on_laser(); // Chamada para a classe filha
 }
 
+/**
+ * @brief Callback associado ao recebimento do Mapa Global (OccupancyGrid).
+ * 
+ * @param msg Mensagem contendo os dados do mapa recebido.
+ */
 void ExplorationNode::map_callback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
 {
   map_msg_ = msg;
-  on_map();
+  on_map(); // Chamada para a classe filha
 }
 
+/**
+ * @brief Retorna a distãncia medida pelo obstáculo mais próximo imediatamente à frente do robô.
+ * 
+ * Filtra as leituras dentro de um cone frontal configurável.
+ * 
+ * @param half_angle_deg Metade da abertura do cone em graus direcionado à frente do robô.
+ * @return double Menor distância avaliada no cone, ou infinito caso não existam obstáculos ou dados indisponíveis.
+ */
 double ExplorationNode::get_front_distance(double half_angle_deg) const
 {
   if (laser_ranges_.empty()) return std::numeric_limits<double>::infinity();
@@ -64,6 +84,12 @@ double ExplorationNode::get_front_distance(double half_angle_deg) const
   return min_dist;
 }
 
+/**
+ * @brief Facilita o envio de comandos de velocidade (linear e angular) à base de rodas.
+ * 
+ * @param v Velocidade linear (frente) em m/s.
+ * @param w Velocidade angular (rotação) em rad/s.
+ */
 void ExplorationNode::publish_velocity(double v, double w)
 {
   geometry_msgs::msg::Twist twist;
@@ -72,6 +98,9 @@ void ExplorationNode::publish_velocity(double v, double w)
   cmd_vel_pub_->publish(twist);
 }
 
+/**
+ * @brief Envia um comando de parada imediata enviando o valor zero para as velocidades.
+ */
 void ExplorationNode::stop()
 {
   publish_velocity(0.0, 0.0);
