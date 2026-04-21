@@ -49,7 +49,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(join(pkg_mapping, "launch", "includes", "bringup_tf_map_odom.launch.py"))
     )
 
-    rviz_config_file = join(pkg_description, 'rviz', 'rviz_map.rviz')
+    rviz_config_file = join(pkg_mapping, 'rviz', 'exploration.rviz')
 
     rviz_launch = TimerAction(
         period=3.0,

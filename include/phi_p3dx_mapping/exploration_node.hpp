@@ -3,6 +3,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <vector>
@@ -28,6 +29,7 @@ public:
 protected:
   // Publishers & Subscribers
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;   
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr target_pose_pub_;
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub_; 
   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_; 
   rclcpp::TimerBase::SharedPtr timer_;                                    
@@ -58,6 +60,12 @@ protected:
    * @brief Publica comandos de velocidade linear e angular para o robô.
    */
   void publish_velocity(double v, double w);
+  
+  /**
+   * @brief Publica a pose ou direção do alvo/movimento no rviz.
+   */
+  void publish_target_pose(double x, double y, double theta, const std::string &frame_id = "map");
+  
   
   /**
    * @brief Envia comandos de parada definindo as velocidades do robô para zero.

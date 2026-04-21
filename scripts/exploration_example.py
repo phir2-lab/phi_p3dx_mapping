@@ -28,9 +28,11 @@ class ExplorationExample(ExplorationNode):
         if front_dist < MIN_DIST:
             # Obstáculo detectado, girar
             self.get_logger().info(f'Obstáculo detectado a frente ({front_dist:.2f}m). Virando...')
+            self.publish_target_pose(0.0, 0.0, 1.57, 'base_link')  # Intenção: virar à esquerda
             self.publish_velocity(0.0, 0.4)
         else:
             # Caminho livre, avançar
+            self.publish_target_pose(0.0, 0.0, 0.0, 'base_link')  # Intenção: ir em frente
             self.publish_velocity(0.25, 0.0)
 
     def on_map(self) -> None:

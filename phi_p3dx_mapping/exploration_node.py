@@ -1,7 +1,7 @@
 import math
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data, QoSProfile, DurabilityPolicy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import OccupancyGrid
 
@@ -31,6 +31,9 @@ class ExplorationNode(Node):
 
         # Publisher param enviar comandos de velocidade ao robô (ou simulador)
         self.pub_cmd = self.create_publisher(Twist, '/cmd_vel', 10)
+
+        # Publisher para as orientações desejadas/alvos
+        self.target_pose_pub = self.create_publisher(PoseStamped, '/target_pose', 10)
 
         # Subscriber de dados de varredura a laser (SensorDataQoS é melhor para sensores)
         self.create_subscription(
@@ -107,6 +110,31 @@ class ExplorationNode(Node):
         twist.linear.x = float(v)
         twist.angular.z = float(w)
         self.pub_cmd.publish(twist)
+
+    def publish_target_pose(self, x: float, y: float, theta: float, frame_id: str = 'base_link') -> None:
+        """
+        @brief Publica uma pose destino (ou vetor de movimento) para visualização.
+        
+        @param x Posição X da pose alvo.
+        @param y Posição Y da pose alvo.
+        @param theta Ângulo (yaw) em radianos.
+        @param frame_id Frame de referência para a pose.
+        """
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = self.get_clock().now().to_msg()
+        pose_msg.header.frame_id = frame_id
+        
+        pose_msg.pose.position.x = float(x)
+        pose_msg.pose.position.y = float(y)
+        pose_msg.pose.position.z = 0.0
+        
+        # Converter ângulo para quaternion (w e z apenas para rotação em torno de Z)
+        pose_msg.pose.orientation.w = math.cos(theta / 2.0)
+        pose_msg.pose.orientation.x = 0.0
+        pose_msg.pose.orientation.y = 0.0
+        pose_msg.pose.orientation.z = math.sin(theta / 2.0)
+        
+        self.target_pose_pub.publish(pose_msg)
 
     def stop(self) -> None:
         """
