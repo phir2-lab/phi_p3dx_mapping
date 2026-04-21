@@ -1,15 +1,6 @@
 """
-Launch para teste do pacote phi_p3dx_mapping.
-
-Este launch inicia:
-- O ambiente Gazebo com um mundo SDF (ex.: obstacles).
-- O robô Pioneer 3-DX spawnado no mundo (robot_state_publisher, joint_state_publisher).
-- RViz com o arquivo rviz_map.rviz para visualização do mapa.
-
-Nota: Os nodos de mapeamento e exploração devem ser rodados em terminais separados
-para fins didáticos.
+Launch principal para simulação 3D com Gazebo do pacote phi_p3dx_mapping.
 """
-
 from os.path import join
 from launch.conditions import IfCondition
 from launch import LaunchDescription
@@ -21,6 +12,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     pkg_navigation = get_package_share_directory("phi_p3dx_navigation")
     pkg_description = get_package_share_directory("phi_p3dx_description")
+    pkg_mapping = get_package_share_directory("phi_p3dx_mapping")
 
     world_name = LaunchConfiguration("world_name")
     x = LaunchConfiguration("x")
@@ -53,6 +45,10 @@ def generate_launch_description():
         }.items()
     )
 
+    tf_map_odom = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(join(pkg_mapping, "launch", "includes", "bringup_tf_map_odom.launch.py"))
+    )
+
     rviz_config_file = join(pkg_description, 'rviz', 'rviz_map.rviz')
 
     rviz_launch = TimerAction(
@@ -81,5 +77,6 @@ def generate_launch_description():
         world_launch,
         state_publishers,
         robot_launch,
+        tf_map_odom,
         rviz_launch,
     ])
