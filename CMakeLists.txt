@@ -57,8 +57,14 @@ ament_python_install_package(${PROJECT_NAME})
 
 install(PROGRAMS
   scripts/mapping_example.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME mapping_example_py
+)
+
+install(PROGRAMS
   scripts/exploration_example.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME exploration_example_py
 )
 
 if(BUILD_TESTING)
